@@ -6,20 +6,16 @@ A proposta deve apresentar uma ideia simples, clara e viável para ser desenvolv
 
 ## 1. Nome provisório do jogo
 
-Escreva aqui o nome provisório do jogo.
-
-Exemplo:
-
-> Corrida dos Obstáculos
+> Flappy PUC
 
 ## 2. Integrantes do grupo
 
 Liste os integrantes do grupo.
 
-- Nome 1:
-- Nome 2:
-- Nome 3:
-- Nome 4:
+- Nome 1: Gabriel Sousa Aguiar
+- Nome 2: Nelson Buralli Dabes
+- Nome 3: Rafael Mota Azevedo
+- Nome 4: Yudy Samuel Ramos
 
 ## 3. Tipo de jogo
 
@@ -42,7 +38,7 @@ Exemplos:
 
 Tipo escolhido pelo grupo:
 
-> Escreva aqui.
+> Jogo de desviar de obstáculos.
 
 ## 4. Descrição geral do jogo
 
@@ -57,7 +53,7 @@ Procure responder:
 
 Descrição:
 
-> Escreva aqui.
+> O jogo será inspirado no Flappy Bird. O jogador controlará um pássaro que deverá atravessar espaços entre canos sem colidir com eles. Os canos aparecerão continuamente e o objetivo será sobreviver pelo maior tempo possível enquanto acumula pontos.
 
 ## 5. Objetivo do jogador
 
@@ -75,7 +71,7 @@ Exemplos:
 
 Objetivo:
 
-> Escreva aqui.
+> Passar pelo maior número possível de obstáculos sem colidir, obtendo a maior pontuação possível.
 
 ## 6. Regras principais
 
@@ -91,11 +87,11 @@ Exemplo:
 
 Regras do grupo:
 
-- Regra 1:
-- Regra 2:
-- Regra 3:
-- Regra 4:
-- Regra 5:
+- Regra 1: O pássaro cai devido à gravidade.
+- Regra 2: O jogador pode fazer o pássaro subir pressionando a barra de espaço.
+- Regra 3: Os canos se movimentam da direita para a esquerda.
+- Regra 4: Cada obstáculo ultrapassado gera um ponto.
+- Regra 5: Ao colidir com um cano ou sair da área de jogo, a partida termina.
 
 ## 7. Condição de vitória
 
@@ -111,7 +107,7 @@ Exemplos:
 
 Condição de vitória:
 
-> Escreva aqui.
+> O objetivo é alcançar a maior pontuação possível. O jogador pode considerar uma vitória ao superar o recorde anterior.
 
 ## 8. Condição de derrota ou encerramento
 
@@ -127,7 +123,7 @@ Exemplos:
 
 Condição de derrota ou encerramento:
 
-> Escreva aqui.
+> A partida termina quando o pássaro colide com um cano, com o chão ou com o limite superior da tela.
 
 ## 9. Elementos previstos no jogo
 
@@ -141,7 +137,7 @@ Exemplo:
 
 Descrição:
 
-> Escreva aqui.
+> Um pássaro controlado pelo jogador.
 
 ## Obstáculos, inimigos ou desafios
 
@@ -151,7 +147,7 @@ Exemplo:
 
 Descrição:
 
-> Escreva aqui.
+> Canos posicionados com aberturas aleatórias para o jogador atravessar.
 
 ## Itens, alvos ou objetos de interação
 
@@ -161,7 +157,7 @@ Exemplo:
 
 Descrição:
 
-> Escreva aqui.
+> Os próprios espaços entre os canos funcionam como desafios a serem superados.
 
 ## Pontuação, vidas, tempo ou progresso
 
@@ -171,7 +167,7 @@ Exemplo:
 
 Descrição:
 
-> Escreva aqui.
+> O jogador acumula pontos ao passar pelos obstáculos. O jogo também armazenará o recorde.
 
 ## 10. Controles previstos
 
@@ -188,9 +184,9 @@ Exemplo:
 
 Controles do grupo:
 
-- Tecla/comando:
-- Tecla/comando:
-- Tecla/comando:
+- Tecla/comando: Espaço - fazer o pássaro subir.
+- Tecla/comando: R - reiniciar a partida.
+- Tecla/comando: ESC - encerrar o jogo.
 
 ## 11. Organização inicial do código
 
@@ -206,7 +202,12 @@ Exemplo:
 
 Organização planejada:
 
-> Escreva aqui.
+> main.py: inicia o jogo.
+> src/jogo.py: loop principal.
+> src/passaro.py: movimentação do pássaro.
+> src/canos.py: geração e movimentação dos obstáculos.
+> src/placar.py: sistema de pontuação e recorde.
+> src/dados.py: leitura e gravação do recorde.
 
 
 ## 12. Recursos externos previstos
@@ -222,11 +223,7 @@ Exemplo:
 
 Recursos previstos:
 
-> Escreva aqui.
-
-Caso não pretenda utilizar recursos externos, escreva:
-
-> Não pretendemos utilizar recursos externos.
+> Talvez tutoriais, mas apenas como referência para aprendizado do Pygame.
 
 ## 13. Principais dificuldades esperadas
 
@@ -245,9 +242,10 @@ Exemplos:
 
 Dificuldades previstas:
 
-- Dificuldade 1:
-- Dificuldade 2:
-- Dificuldade 3:
+- Dificuldade 1: Implementação da colisão entre pássaro e canos.
+- Dificuldade 2: Organização do código em módulos.
+- Dificuldade 3: Utilização correta do GitHub em grupo.
+- Dificuldade 4: Efetuação do recorde ser gravado ao final de cada nova tentativa.
 
 ## 14. Escopo mínimo para a entrega final
 
@@ -261,7 +259,7 @@ Exemplo:
 
 Escopo mínimo:
 
-> Escreva aqui.
+> A versão mínima do jogo terá um pássaro controlável, obstáculos em movimento, sistema de pontuação, condição de derrota e tela de fim de jogo.
 
 ## 15. Possíveis melhorias, caso haja tempo
 
@@ -281,6 +279,5 @@ Exemplos:
 
 Melhorias possíveis:
 
-- Melhoria 1:
-- Melhoria 2:
-- Melhoria 3:
+- Melhoria 1: Sistema de ranking.
+- Melhoria 2: Aumento progressivo da dificuldade.
