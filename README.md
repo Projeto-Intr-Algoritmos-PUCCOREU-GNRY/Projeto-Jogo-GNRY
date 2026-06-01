@@ -6,10 +6,10 @@ Este repositório é um template para os grupos da disciplina. A proposta é com
 
 ## Integrantes do grupo
 
-- Gabriel Sousa
-- Nelson Buralli
-- Rafael Mota
-- Yudy Ramos
+- Gabriel Sousa Aguiar
+- Nelson Buralli Dabes
+- Rafael Mota Azevedo
+- Yudy Samuel Ramos
 
 ## Estrutura do projeto
 
