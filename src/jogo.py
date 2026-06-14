@@ -1,143 +1,182 @@
 import pygame
 
-from src.config import (
-    LARGURA_TELA,
-    ALTURA_TELA,
-    FPS,
-    TITULO_JOGO,
-    CINZA,
-    CAMINHO_RECORDE,
-    CAMINHO_SPRITES,
-)
-
-from src.funcoes import (
-    calcular_pontos,
-    jogador_perdeu,
-    limitar_valor,
-    verificar_colisao,
-    tomar_dano,
-)
-from src.sprites import pegar_sprite
-from src.dados import (
-    salvar_recorde,
-    carregar_recorde,
-)
+from src.config import *
+from src.funcoes import *
 
 
 def executar_jogo():
-    """Executa o loop principal do jogo e controla estado, colisões e pontuação."""
-    pygame.init()
-    
 
-    tela = pygame.display.set_mode((LARGURA_TELA, ALTURA_TELA))
-    pygame.display.set_caption(TITULO_JOGO)
+    tela = pygame.display.set_mode((LARGURA, ALTURA))
+    pygame.display.set_caption(TITULO)
 
-    relogio = pygame.time.Clock()
-    rodando = True
+    clock = pygame.time.Clock()
 
-    # 1. Carregando as imagens recortadas do Spritesheet
+    fonte = pygame.font.SysFont("arial", 28)
+    fonte_grande = pygame.font.SysFont("arial", 48)
 
+    while True:
 
-    # Jogador: usando tamanho 110x110 para capturar o quadrado perfeitamente
-    player_image = pegar_sprite(CAMINHO_SPRITES, x=110, y=120, width=190, height=190, scale=0.5)
+        passaro = {
+            "x": 120,
+            "y": 250,
+            "largura": 40,
+            "altura": 30,
+            "velocidade": 0
+        }
 
-    # Gema pequena: usando tamanho 64x64
-    gem_image    = pegar_sprite(CAMINHO_SPRITES, x=900, y=690, width=200, height=200, scale=0.5)
+        canos = []
 
-    # Morcego: usando tamanho 180x120 por causa das asas abertas
-    bat_image    = pegar_sprite(CAMINHO_SPRITES, x=905, y=1060, width=200, height=130, scale=0.5)
-    
-    # 2. Criando a estrutura de Sprites usando Dicionários
-    jogador = {
-        "imagem": player_image,
-        "rect": player_image.get_rect(topleft=(100, 100))
-    }
+        pontos = 0
 
-    gema = {
-        "imagem": gem_image,
-        "rect": gem_image.get_rect(topleft=(500, 300))
-    }
-    
-    inimigo = {
-        "imagem": bat_image,
-        "rect": bat_image.get_rect(topleft=(200, 500))
-    }
+        recorde = carregar_recorde()
 
-    velocidade = 5
-    pontos = 0
-    vidas = 3
-    recorde = carregar_recorde(CAMINHO_RECORDE)
+        game_over = False
 
-    # Loop principal: processa entrada, atualiza estado e renderiza a cena.
-    while rodando:
-        relogio.tick(FPS)
+        contador_canos = 0
 
-        for evento in pygame.event.get():
-            if evento.type == pygame.QUIT:
-                rodando = False
+        while True:
 
-        teclas = pygame.key.get_pressed()
+            clock.tick(FPS)
 
-        # Movimentação alterando direto os eixos X e Y do retângulo do jogador
-        if teclas[pygame.K_LEFT]:
-            jogador["rect"].x -= velocidade
-        if teclas[pygame.K_RIGHT]:
-            jogador["rect"].x += velocidade
-        if teclas[pygame.K_UP]:
-            jogador["rect"].y -= velocidade
-        if teclas[pygame.K_DOWN]:
-            jogador["rect"].y += velocidade
+            for evento in pygame.event.get():
 
-        # Limitando o jogador dentro das bordas da tela usando as propriedades do Rect
-        jogador["rect"].x = limitar_valor(jogador["rect"].x, 0, LARGURA_TELA - jogador["rect"].width)
-        jogador["rect"].y = limitar_valor(jogador["rect"].y, 0, ALTURA_TELA - jogador["rect"].height)
+                if evento.type == pygame.QUIT:
+                    return
 
-        # Verificação de colisão com a Gema (antigo 'item')
-        if verificar_colisao(jogador["rect"], gema["rect"]):
-            pontos = calcular_pontos(pontos, 10)
+                if evento.type == pygame.KEYDOWN:
 
-            # Move a gema de lugar ao coletar
-            gema["rect"].x += 80
-            gema["rect"].y += 50
+                    if evento.key == pygame.K_SPACE:
 
-            # Se a gema sair da tela, volta para uma posição segura
-            if gema["rect"].x > LARGURA_TELA - gema["rect"].width:
-                gema["rect"].x = 50
-            if gema["rect"].y > ALTURA_TELA - gema["rect"].height:
-                gema["rect"].y = 50
+                        if game_over:
+                            return executar_jogo()
 
-        # Verificação de colisão com o Inimigo
-        if verificar_colisao(jogador["rect"], inimigo["rect"]):
-            vidas = tomar_dano(vidas, 1)
+                        passaro["velocidade"] = FORCA_PULO
 
-            # Afasta o inimigo ao colidir
-            inimigo["rect"].x += 80
-            inimigo["rect"].y += 50
+            if not game_over:
 
-            if inimigo["rect"].x > LARGURA_TELA - inimigo["rect"].width:
-                inimigo["rect"].x = 50
-            if inimigo["rect"].y > ALTURA_TELA - inimigo["rect"].height:
-                inimigo["rect"].y = 50
+                # gravidade
 
-        # Regras de fim de jogo e recorde
-        if jogador_perdeu(vidas):
-            rodando = False
+                passaro["velocidade"] += GRAVIDADE
+                passaro["y"] += passaro["velocidade"]
 
-        if pontos > recorde:
-            recorde = pontos
-            salvar_recorde(CAMINHO_RECORDE, recorde)
+                # criar canos
 
-        pygame.display.set_caption(
-            f"{TITULO_JOGO} | Pontos: {pontos} | Recorde: {recorde} | Vidas: {vidas}"
-        )
+                contador_canos += 1
 
-        tela.fill(CINZA)
+                if contador_canos >= 90:
+                    canos.append(criar_cano())
+                    contador_canos = 0
 
-        # Desenhando os elementos na tela passando a imagem e o rect de cada dicionário
-        tela.blit(gema["imagem"], gema["rect"])
-        tela.blit(inimigo["imagem"], inimigo["rect"])
-        tela.blit(jogador["imagem"], jogador["rect"])
+                # mover canos
 
-        pygame.display.flip()
+                for cano in canos:
 
-    pygame.quit()
+                    cano["x"] -= VELOCIDADE_CANO
+
+                    if (
+                        not cano["passou"]
+                        and cano["x"] + cano["largura"] < passaro["x"]
+                    ):
+                        pontos += 1
+                        cano["passou"] = True
+
+                # remover canos
+
+                canos = [
+                    cano
+                    for cano in canos
+                    if cano["x"] + cano["largura"] > 0
+                ]
+
+                # colisão
+
+                if verificar_colisao(passaro, canos):
+
+                    game_over = True
+
+                    novo_recorde = atualizar_recorde(
+                        recorde,
+                        pontos
+                    )
+
+                    if novo_recorde != recorde:
+
+                        recorde = novo_recorde
+                        salvar_recorde(recorde)
+
+            # desenhar tela
+
+            tela.fill(AZUL)
+
+            # pássaro
+
+            pygame.draw.rect(
+                tela,
+                AMARELO,
+                (
+                    passaro["x"],
+                    passaro["y"],
+                    passaro["largura"],
+                    passaro["altura"]
+                )
+            )
+
+            # canos
+
+            for cano in canos:
+
+                pygame.draw.rect(
+                    tela,
+                    VERDE,
+                    (
+                        cano["x"],
+                        0,
+                        cano["largura"],
+                        cano["altura_topo"]
+                    )
+                )
+
+                pygame.draw.rect(
+                    tela,
+                    VERDE,
+                    (
+                        cano["x"],
+                        cano["altura_topo"] + cano["abertura"],
+                        cano["largura"],
+                        ALTURA
+                    )
+                )
+
+            texto_pontos = fonte.render(
+                f"Pontos: {pontos}",
+                True,
+                PRETO
+            )
+
+            texto_recorde = fonte.render(
+                f"Recorde: {recorde}",
+                True,
+                PRETO
+            )
+
+            tela.blit(texto_pontos, (20, 20))
+            tela.blit(texto_recorde, (20, 55))
+
+            if game_over:
+
+                texto_game_over = fonte_grande.render(
+                    "GAME OVER",
+                    True,
+                    VERMELHO
+                )
+
+                texto_reiniciar = fonte.render(
+                    "Pressione ESPAÇO para jogar novamente",
+                    True,
+                    PRETO
+                )
+
+                tela.blit(texto_game_over, (250, 180))
+                tela.blit(texto_reiniciar, (170, 250))
+
+            pygame.display.update()
