@@ -2,79 +2,163 @@ import pygame
 
 from src.config import *
 from src.funcoes import *
+from src.sprites import carregar_frames_bird
 
 
-def desenhar_tela_inicial(tela, fonte, fonte_grande, recorde):
-    tela.fill(AZUL)
+def desenhar_tela_inicial(tela, fonte, recorde, tela_inicial_img, contador):
+    tela.blit(tela_inicial_img, (0, 0))
 
-    titulo = fonte_grande.render("FLAPPY BIRD", True, VERDE)
-    instrucao = fonte.render("Pressione ESPAÇO para começar", True, PRETO)
-    controles = fonte.render("Controle: ESPAÇO para pular", True, PRETO)
-    texto_recorde = fonte.render(f"Recorde: {recorde}", True, PRETO)
+    texto_recorde = fonte.render(f"RECORDE: {recorde}", True, BRANCO)
 
-    tela.blit(titulo, (250, 130))
-    tela.blit(instrucao, (220, 220))
-    tela.blit(controles, (240, 260))
-    tela.blit(texto_recorde, (330, 310))
+    tela.blit(
+        texto_recorde,
+        (
+            LARGURA // 2 - texto_recorde.get_width() // 2,
+            345
+        )
+    )
+
+    if (contador // 30) % 2 == 0:
+        instrucao = fonte.render(
+            "PRESSIONE ESPACO PARA COMECAR",
+            True,
+            BRANCO
+        )
+
+        tela.blit(
+            instrucao,
+            (
+                LARGURA // 2 - instrucao.get_width() // 2,
+                395
+            )
+        )
 
     pygame.display.update()
 
 
-def executar_jogo():
+def desenhar_chao(tela, chao_img):
+    y_chao = ALTURA - chao_img.get_height()
 
+    for x in range(0, LARGURA, chao_img.get_width()):
+        tela.blit(chao_img, (x, y_chao))
+
+
+def executar_jogo():
     tela = pygame.display.set_mode((LARGURA, ALTURA))
     pygame.display.set_caption(TITULO)
 
     clock = pygame.time.Clock()
 
-    fonte = pygame.font.SysFont("arial", 28)
-    fonte_grande = pygame.font.SysFont("arial", 48)
+    fonte = pygame.font.SysFont("arial", 32)
+    fonte_grande = pygame.font.SysFont("arial", 56)
+
+    frames = carregar_frames_bird(
+        "assets/imagens/birds/BirdSprite.png"
+    )
+
+    background = pygame.image.load(
+        "assets/imagens/fase1/background_fase1.png"
+    ).convert()
+
+    background = pygame.transform.scale(
+        background,
+        (LARGURA, ALTURA)
+    )
+
+    tela_inicial_img = pygame.image.load(
+        "assets/imagens/tela_inicial.png"
+    ).convert()
+
+    tela_inicial_img = pygame.transform.scale(
+        tela_inicial_img,
+        (LARGURA, ALTURA)
+    )
+
+    chao_img = pygame.image.load(
+        "assets/imagens/fase1/chao_fase1.png"
+    ).convert_alpha()
+
+    chao_img = pygame.transform.scale(
+        chao_img,
+        (200, 32)
+    )
+
+    cano_img = pygame.image.load(
+        "assets/imagens/fase1/cano_fase1.png"
+    ).convert_alpha()
+
+    cano_img = pygame.transform.scale(
+        cano_img,
+        (80, 400)
+    )
+
+    cano_img_invertido = pygame.transform.flip(
+        cano_img,
+        False,
+        True
+    )
 
     while True:
-
         passaro = {
             "x": 120,
-            "y": 250,
-            "largura": 40,
-            "altura": 30,
+            "y": 200,
+            "largura": 64,
+            "altura": 64,
             "velocidade": 0
         }
 
-        canos = []
+        primeiro_cano = criar_cano()
+        primeiro_cano["x"] = 500
+        canos = [primeiro_cano]
+
         pontos = 0
         recorde = carregar_recorde()
         game_over = False
         tela_inicial = True
         contador_canos = 0
+        contador_tela_inicial = 0
+
+        frame_atual = 0
+        contador_animacao = 0
 
         while True:
-
             clock.tick(FPS)
 
-            for evento in pygame.event.get():
+            reiniciar_partida = False
 
+            for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     return
 
                 if evento.type == pygame.KEYDOWN:
-
                     if evento.key == pygame.K_SPACE:
-
                         if tela_inicial:
                             tela_inicial = False
+                            passaro["velocidade"] = FORCA_PULO
 
                         elif game_over:
-                            return executar_jogo()
+                            reiniciar_partida = True
 
                         else:
                             passaro["velocidade"] = FORCA_PULO
 
+            if reiniciar_partida:
+                break
+
             if tela_inicial:
-                desenhar_tela_inicial(tela, fonte, fonte_grande, recorde)
+                contador_tela_inicial += 1
+
+                desenhar_tela_inicial(
+                    tela,
+                    fonte,
+                    recorde,
+                    tela_inicial_img,
+                    contador_tela_inicial
+                )
+
                 continue
 
             if not game_over:
-
                 passaro["velocidade"] += GRAVIDADE
                 passaro["y"] += passaro["velocidade"]
 
@@ -85,7 +169,6 @@ def executar_jogo():
                     contador_canos = 0
 
                 for cano in canos:
-
                     cano["x"] -= VELOCIDADE_CANO
 
                     if (
@@ -101,8 +184,17 @@ def executar_jogo():
                     if cano["x"] + cano["largura"] > 0
                 ]
 
-                if verificar_colisao(passaro, canos):
+                contador_animacao += 1
 
+                if contador_animacao >= 8:
+                    frame_atual += 1
+
+                    if frame_atual >= len(frames):
+                        frame_atual = 0
+
+                    contador_animacao = 0
+
+                if verificar_colisao(passaro, canos):
                     game_over = True
 
                     novo_recorde = atualizar_recorde(recorde, pontos)
@@ -111,51 +203,39 @@ def executar_jogo():
                         recorde = novo_recorde
                         salvar_recorde(recorde)
 
-            tela.fill(AZUL)
-
-            pygame.draw.rect(
-                tela,
-                AMARELO,
-                (
-                    passaro["x"],
-                    passaro["y"],
-                    passaro["largura"],
-                    passaro["altura"]
-                )
-            )
+            tela.blit(background, (0, 0))
 
             for cano in canos:
-
-                pygame.draw.rect(
-                    tela,
-                    VERDE,
+                tela.blit(
+                    cano_img_invertido,
                     (
                         cano["x"],
-                        0,
-                        cano["largura"],
-                        cano["altura_topo"]
+                        cano["altura_topo"] - cano_img.get_height()
                     )
                 )
 
-                pygame.draw.rect(
-                    tela,
-                    VERDE,
+                tela.blit(
+                    cano_img,
                     (
                         cano["x"],
-                        cano["altura_topo"] + cano["abertura"],
-                        cano["largura"],
-                        ALTURA
+                        cano["altura_topo"] + cano["abertura"]
                     )
                 )
 
-            texto_pontos = fonte.render(f"Pontos: {pontos}", True, PRETO)
-            texto_recorde = fonte.render(f"Recorde: {recorde}", True, PRETO)
+            tela.blit(
+                frames[frame_atual],
+                (passaro["x"], passaro["y"])
+            )
+
+            desenhar_chao(tela, chao_img)
+
+            texto_pontos = fonte.render(f"Pontos: {pontos}", True, BRANCO)
+            texto_recorde = fonte.render(f"Recorde: {recorde}", True, BRANCO)
 
             tela.blit(texto_pontos, (20, 20))
-            tela.blit(texto_recorde, (20, 55))
+            tela.blit(texto_recorde, (20, 60))
 
             if game_over:
-
                 texto_game_over = fonte_grande.render(
                     "GAME OVER",
                     True,
@@ -165,17 +245,17 @@ def executar_jogo():
                 texto_pontuacao = fonte.render(
                     f"Pontuação final: {pontos}",
                     True,
-                    PRETO
+                    BRANCO
                 )
 
                 texto_reiniciar = fonte.render(
                     "Pressione ESPAÇO para jogar novamente",
                     True,
-                    PRETO
+                    BRANCO
                 )
 
                 tela.blit(texto_game_over, (250, 160))
-                tela.blit(texto_pontuacao, (285, 225))
-                tela.blit(texto_reiniciar, (170, 280))
+                tela.blit(texto_pontuacao, (285, 230))
+                tela.blit(texto_reiniciar, (190, 285))
 
             pygame.display.update()

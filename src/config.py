@@ -10,8 +10,8 @@ FPS = 60
 
 # Física
 
-GRAVIDADE = 0.5
-FORCA_PULO = -8
+GRAVIDADE = 0.25
+FORCA_PULO = -5.5
 
 
 # Canos
