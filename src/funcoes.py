@@ -57,10 +57,10 @@ def verificar_colisao(passaro, canos):
         return True
 
     rect_passaro = pygame.Rect(
-        passaro["x"],
-        passaro["y"],
-        passaro["largura"],
-        passaro["altura"]
+        passaro["x"] + 8,
+        passaro["y"] + 8,
+        passaro["largura"] - 16,
+        passaro["altura"] - 16
     )
 
     for cano in canos:
